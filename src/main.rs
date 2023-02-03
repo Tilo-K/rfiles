@@ -24,7 +24,6 @@ enum Commands {
 
 fn get_dir(dir: &String, recursive: bool, depth: u16) -> Vec<String> {
     let md = fs::metadata(dir).unwrap();
-
     if !md.is_dir() || depth > 100 {
         return vec![];
     }
@@ -34,13 +33,23 @@ fn get_dir(dir: &String, recursive: bool, depth: u16) -> Vec<String> {
 
     for path in paths {
         let path = path.unwrap().path().display().to_string();
-        let meta = fs::metadata(path.clone()).unwrap();
+        let meta = fs::metadata(path.clone());
+        let entry: String;
+        let mut is_dir = false;
 
-        let datetime: DateTime<Local> = meta.accessed().unwrap().into();
-        let entry = format!("{}\t{}", datetime.format("%d.%m.%Y %k:%M"), &path);
+        match meta {
+            Ok(data) => {
+                let datetime: DateTime<Local> = data.accessed().unwrap().into();
+                entry = format!("{}\t{}", datetime.format("%d.%m.%Y %k:%M"), &path);
+                is_dir = data.is_dir()
+            }
+            _ => {
+                entry = format!("No access\t\t{}", &path);
+            }
+        }
         result.push(entry);
 
-        if meta.is_dir() && recursive {
+        if is_dir && recursive {
             let mut sub_dir = get_dir(&path, recursive, depth + 1);
             result.append(&mut sub_dir);
         }
@@ -57,10 +66,12 @@ fn list_dir(dir: String, recursive: Option<bool>) {
         _ => list = get_dir(&dir, false, 0),
     }
 
-    println!("Listing {}\nLast accesed\tFilepath\n", &dir);
+    let mut output = format!("Listing {}\nLast accesed\t\tFilepath\n\n", &dir);
     for file in list {
-        println!("{}", file)
+        output = format!("{}{}\n", output, file);
     }
+
+    println!("{}", output);
 }
 
 fn main() {
