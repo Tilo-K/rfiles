@@ -81,3 +81,57 @@ fn main() {
         Commands::List { dir, recursive } => list_dir(dir, recursive),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use crate::get_dir;
+
+    #[test]
+    fn test_get_dir_not_recursive() -> Result<(), String> {
+        fs::create_dir("./test").unwrap();
+        fs::File::create("./test/testA").unwrap();
+        fs::File::create("./test/testB").unwrap();
+        fs::File::create("./test/testC").unwrap();
+
+        let result = get_dir(&String::from("./test"), false, 0);
+
+        fs::remove_dir_all("./test").unwrap();
+
+        if result.len() != 3 {
+            return Err(format!(
+                "Result should be of length 3 but isn't\nResult:{:?}",
+                result
+            ));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_get_dir_recursive() -> Result<(), String> {
+        fs::create_dir("./rectest").unwrap();
+        fs::create_dir("./rectest/test2").unwrap();
+
+        fs::File::create("./rectest/testA").unwrap();
+        fs::File::create("./rectest/testB").unwrap();
+        fs::File::create("./rectest/testC").unwrap();
+
+        fs::File::create("./rectest/test2/testD").unwrap();
+
+        let result = get_dir(&String::from("./rectest"), true, 0);
+
+        fs::remove_dir_all("./rectest").unwrap();
+
+        if result.len() != 5 {
+            return Err(format!(
+                "Result should be of length 5 but is {} \nResult:{:?}",
+                result.len(),
+                result
+            ));
+        }
+
+        Ok(())
+    }
+}
