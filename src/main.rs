@@ -12,10 +12,13 @@ enum Commands {
     List {
         #[arg(short, long)]
         dir: String,
+
+        #[arg(short, long)]
+        recursive: Option<bool>,
     },
 }
 
-fn list_dir(dir: String) {
+fn list_dir(dir: String, recursvie: Option<bool>) {
     println!("{}", dir);
 }
 
@@ -23,6 +26,6 @@ fn main() {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::List { dir } => list_dir(dir),
+        Commands::List { dir, recursive } => list_dir(dir, recursive),
     }
 }
