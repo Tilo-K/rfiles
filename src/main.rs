@@ -37,7 +37,7 @@ fn get_dir(dir: &String, recursive: bool, depth: u16) -> Vec<String> {
         let meta = fs::metadata(path.clone()).unwrap();
 
         let datetime: DateTime<Local> = meta.accessed().unwrap().into();
-        let entry = format!("{}\t{}", datetime.format("%d.%m.%Y"), &path);
+        let entry = format!("{}\t{}", datetime.format("%d.%m.%Y %k:%M"), &path);
         result.push(entry);
 
         if meta.is_dir() && recursive {
