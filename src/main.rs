@@ -14,7 +14,6 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     List {
-        #[arg(short, long)]
         dir: String,
 
         #[arg(short, long)]
