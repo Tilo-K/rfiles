@@ -132,6 +132,26 @@ fn copy(source: String, target: String) {
             .expect("Invalid Path to source file !");
 
         copy_file(&src_file, &target_path).expect("Error copying file !");
+    } else if source_paths.len() > 1 {
+        //TODO: Make this more performant
+        for src_file in source_paths.iter() {
+            if !src_file.is_ok() {
+                continue;
+            }
+
+            let src = src_file.as_ref().unwrap();
+            let pot_name = src.file_name();
+            if pot_name.is_none() {
+                continue;
+            }
+            let name = pot_name.unwrap();
+            let target = target_path.join(name);
+
+            let res = copy_file(&src, &target);
+            if res.is_err() {
+                println!("Error copying {}", src.display());
+            }
+        }
     }
 }
 
