@@ -2,8 +2,12 @@ extern crate chrono;
 use chrono::offset::Local;
 use chrono::DateTime;
 use clap::{Parser, Subcommand};
-use std::{fs::{self, File}, error::Error, path::{Path, PathBuf}, io::{self, Read, Write}};
-use glob::{glob, Paths, PatternError, GlobError};
+use glob::{glob, GlobError};
+use std::{
+    fs::{self, File},
+    io::{self, Read, Write},
+    path::PathBuf,
+};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about= None)]
@@ -23,7 +27,7 @@ enum Commands {
     Copy {
         source: String,
         target: String,
-    }
+    },
 }
 
 fn get_dir(dir: &String, recursive: bool, depth: u16) -> Vec<String> {
@@ -80,40 +84,52 @@ fn list_dir(dir: String, recursive: Option<bool>) {
 
 fn copy_file(src: &PathBuf, dst: &PathBuf) -> Result<usize, io::Error> {
     let src_file = File::open(src)?;
-    let mut dst_file = File::open(dst)?;
-    
+    let mut dst_file = File::create(dst)?;
+
     let mut written: usize = 0;
     let mut src_bytes = src_file.bytes();
 
     let mut b = src_bytes.next();
 
-    while let Some(buff) = b{
-        written += dst_file.write(&buff.expect("Error reading").to_ne_bytes()).expect("Error writing");
+    while let Some(buff) = b {
+        written += dst_file
+            .write(&buff.expect("Error reading").to_ne_bytes())
+            .expect("Error writing");
         b = src_bytes.next();
     }
 
     Ok(written)
 }
 
-fn copy(source: String, target: String){
+fn copy(source: String, target: String) {
     let files = glob(&source).expect("Invalid source");
     let target_glob = glob(&target).expect("Invalid target");
     let source_paths: Vec<Result<PathBuf, GlobError>> = files.collect();
     let target_paths: Vec<Result<PathBuf, GlobError>> = target_glob.collect();
 
-    if target_paths.len() != 1{
+    if target_paths.len() > 1 {
         println!("Target must be a single file or directory !");
     }
 
-    let target_path = target_paths.first().expect("No target !").as_ref().expect("Invalid target");
-    let target_metadata = fs::metadata(&target_path).expect("No access to target !");
+    let target_path: &PathBuf = &PathBuf::from(target);
+    if target_paths.len() == 1 {
+        let target_path = target_paths
+            .first()
+            .expect("No target !")
+            .as_ref()
+            .expect("Invalid target");
+        let target_metadata = fs::metadata(&target_path).expect("No access to target !");
 
-    if target_metadata.is_file() && source_paths.len() > 1 {
-        println!("Can't copy multiple files into a single file");
+        if target_metadata.is_file() && source_paths.len() > 1 {
+            println!("Can't copy multiple files into a single file");
+        }
     }
-
-    if target_metadata.is_file() && source_paths.len() == 1{
-        let src_file = source_paths.first().expect("Invalid source file !").as_ref().expect("Invalid Path to source file !");
+    if source_paths.len() == 1 {
+        let src_file = source_paths
+            .first()
+            .expect("Invalid source file !")
+            .as_ref()
+            .expect("Invalid Path to source file !");
 
         copy_file(&src_file, &target_path).expect("Error copying file !");
     }
