@@ -82,10 +82,40 @@ fn list_dir(dir: String, recursive: Option<bool>) {
     println!("{}", output);
 }
 
+fn copy_folder(src: &PathBuf, dst: &PathBuf) -> Result<usize, io::Error> {
+    let mut written: usize = 0;
+    let folder_name = src.file_name().expect("Invalid source folder");
+    let dst_folder = dst.join(folder_name);
+
+    fs::create_dir_all(&dst_folder).expect("Couldn't create targer folder");
+
+    let files = fs::read_dir(src).expect("No access to source folder");
+
+    for entry in files {
+        if entry.is_err() {
+            continue;
+        }
+
+        let file = entry.unwrap();
+        let meta = match file.metadata() {
+            Ok(d) => d,
+            Err(_) => continue,
+        };
+
+        if meta.is_dir() {
+            //TODO: Probably should take out the recursion using a queue ors smth
+            written += copy_folder(&file.path(), &dst_folder)?;
+        } else if meta.is_file() {
+            written += copy_file(&file.path(), &dst_folder.join(file.file_name()))?;
+        }
+    }
+
+    Ok(written)
+}
+
 fn copy_file(src: &PathBuf, dst: &PathBuf) -> Result<usize, io::Error> {
     let src_file = File::open(src)?;
     let mut dst_file = File::create(dst)?;
-
     let mut written: usize = 0;
     let mut src_bytes = src_file.bytes();
 
@@ -131,7 +161,13 @@ fn copy(source: String, target: String) {
             .as_ref()
             .expect("Invalid Path to source file !");
 
-        copy_file(&src_file, &target_path).expect("Error copying file !");
+        let meta = fs::metadata(src_file).expect("No access to file !");
+
+        if meta.is_file() {
+            copy_file(&src_file, &target_path).expect("Error copying file !");
+        } else if meta.is_dir() {
+            copy_folder(&src_file, &target_path).expect("Error copying folder");
+        }
     } else if source_paths.len() > 1 {
         //TODO: Make this more performant
         for src_file in source_paths.iter() {
@@ -140,16 +176,25 @@ fn copy(source: String, target: String) {
             }
 
             let src = src_file.as_ref().unwrap();
-            let pot_name = src.file_name();
-            if pot_name.is_none() {
-                continue;
-            }
-            let name = pot_name.unwrap();
-            let target = target_path.join(name);
+            let meta = fs::metadata(src).expect("No access to file");
 
-            let res = copy_file(&src, &target);
-            if res.is_err() {
-                println!("Error copying {}", src.display());
+            if meta.is_file() {
+                let pot_name = src.file_name();
+                if pot_name.is_none() {
+                    continue;
+                }
+                let name = pot_name.unwrap();
+                let target = target_path.join(name);
+
+                let res = copy_file(&src, &target);
+                if res.is_err() {
+                    println!("Error copying {}", src.display());
+                }
+            } else if meta.is_dir() {
+                let res = copy_folder(src, target_path);
+                if res.is_err() {
+                    eprintln!("Error copying {}", src.display());
+                }
             }
         }
     }
