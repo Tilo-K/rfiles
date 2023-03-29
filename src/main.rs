@@ -21,11 +21,14 @@ enum Commands {
     List {
         dir: String,
 
-        #[arg(short, long)]
-        recursive: Option<bool>,
+        #[clap(short, long)]
+        recursive: bool,
     },
     Copy {
         source: String,
+        target: String,
+    },
+    Delete {
         target: String,
     },
 }
@@ -66,13 +69,8 @@ fn get_dir(dir: &String, recursive: bool, depth: u16) -> Vec<String> {
     return result;
 }
 
-fn list_dir(dir: String, recursive: Option<bool>) {
-    let list: Vec<String>;
-
-    match recursive {
-        Some(r) => list = get_dir(&dir, r, 0),
-        _ => list = get_dir(&dir, false, 0),
-    }
+fn list_dir(dir: String, recursive: bool) {
+    let list: Vec<String> = get_dir(&dir, recursive, 0);
 
     let mut output = format!("Listing {}\nLast accesed\t\tFilepath\n\n", &dir);
     for file in list {
@@ -200,12 +198,36 @@ fn copy(source: String, target: String) {
     }
 }
 
+fn delete(target: String) {
+    let target_files = glob(&target).expect("Invalid files !");
+
+    for file in target_files {
+        if file.is_err() {
+            continue;
+        }
+
+        let f = file.unwrap();
+        if f.is_dir() {
+            let res = fs::remove_dir_all(f.as_path());
+            if res.is_err() {
+                println!("Couldn't delete the folder {}", f.display());
+            }
+        } else {
+            let res = fs::remove_file(f.as_path());
+            if res.is_err() {
+                println!("Couldn't delete the file {}", f.display());
+            }
+        }
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
 
     match cli.command {
         Commands::List { dir, recursive } => list_dir(dir, recursive),
         Commands::Copy { source, target } => copy(source, target),
+        Commands::Delete { target } => delete(target),
     }
 }
 
