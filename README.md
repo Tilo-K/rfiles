@@ -11,12 +11,12 @@ RFiles is a simple CLI Utility to manage files.
 <!-- START BADGES -->
 
 <!-- linux -->
-[linux_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci/?branch=main&logo=linux&logoColor=white&style=flat-square&label=test
+[linux_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci.yaml?branch=main&logo=linux&logoColor=white&style=flat-square&label=test
 
 <!-- windows -->
-[windows_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci/?branch=main&logo=windows&logoColor=white&style=flat-square&label=test
+[windows_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci.yaml?branch=main&logo=windows&logoColor=white&style=flat-square&label=test
 
 <!-- macos -->
-[macos_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci/?branch=main&logo=apple&logoColor=white&style=flat-square&label=test
+[macos_test_badge]: https://img.shields.io/github/actions/workflow/status/Tilo-K/rfiles/test-ci.yaml?branch=main&logo=apple&logoColor=white&style=flat-square&label=test
 
 <!-- END BADGES -->
