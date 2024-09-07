@@ -2,11 +2,11 @@
 
 RFiles is a simple CLI Utility to manage files.
 
-|             | Build                                 | Test                                | Format                  | Coverage                    |
-| ----------- | ------------------------------------- | ----------------------------------- | ----------------------- | --------------------------- |
-| **Linux**   | ![linux build][linux_build_badge]     | ![linux test][linux_test_badge]     | ![format][format_badge] | ![coverage][coverage_badge] |
-| **Windows** | ![windows build][windows_build_badge] | ![windows test][windows_test_badge] | -                       | -                           |
-| **MacOS**   | ![macos build][macos_build_badge]     | ![macos test][macos_test_badge]     | -                       | -                           |
+|             | Build                                 | Test                                |
+| ----------- | ------------------------------------- | ----------------------------------- |
+| **Linux**   | ![linux build][linux_build_badge]     | ![linux test][linux_test_badge]     |
+| **Windows** | ![windows build][windows_build_badge] | ![windows test][windows_test_badge] |
+| **MacOS**   | ![macos build][macos_build_badge]     | ![macos test][macos_test_badge]     |
 
 <!-- START BADGES -->
 
@@ -24,4 +24,4 @@ RFiles is a simple CLI Utility to manage files.
 [macos_build_badge]: https://img.shields.io/github/workflow/status/Tilo-K/rfiles/build_macos/main?logo=apple&logoColor=white&style=flat-square
 [macos_test_badge]: https://img.shields.io/github/workflow/status/Tilo-K/rfiles/test_macos/main?logo=apple&logoColor=white&style=flat-square&label=test
 
-<!-- END BADGES -->^
+<!-- END BADGES -->
